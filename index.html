@@ -77,6 +77,11 @@
   		}
   		navigator.geolocation.getCurrentPosition(locWin, locFail);
   	}
+  	
+  	function uploadWin() {
+  	  $.mobile.changePage($('#map'));
+  	  alert('CAT MAPPED');
+  	}
 	
     function uploadPhoto(imageData) {
       $.ajax({
@@ -94,7 +99,8 @@
             "type": "Point",
             "coordinates": [map.getCenter().lng(), map.getCenter().lat()]
           }
-        })
+        }),
+        success: uploadWin
       });
   	}
   	
