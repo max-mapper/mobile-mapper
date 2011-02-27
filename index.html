@@ -6,9 +6,9 @@
 
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
 
-    <title>FindABus</title>
+    <title>ImgReadr</title>
 	
-	<link rel="stylesheet"  href="jquery.mobile-1.0a3.min.css" />
+	<link rel="stylesheet"  href="http://code.jquery.com/mobile/1.0a1/jquery.mobile-1.0a1.min.css" />
 	
 	<style type="text/css">
 		#icon-container{
@@ -29,77 +29,117 @@
 			text-align: center;
 		}
 		#map_canvas { height: 330px; width: 100%; margin: 0px; padding: 0px }
+		.left, .right, .top, .bottom {position: absolute; background-color: #000;}
+		.left, .right {height: 10px; width: 60px;}
+		.top, .bottom {height: 60px; width: 10px;}
+		.top    {top: 115px; left: 155px;}
+		.left   {top: 215px; left: 60px;}
+		.right  {top: 215px; left: 200px;}
+		.bottom {top: 255px; left: 155px;}
 	</style>
 	
-	
-	<!-- jquery mobile scripts -->
-	<script src="script/jquery-1.4.3.min.js"></script>
-	<script src="script/jquery.mobile-1.0a3.min.js"></script>    
+	<script src="js/jquery-1.4.3.min.js"></script>
+	<script src="js/jquery.mobile-1.0a1.min.js"></script>    
+  <script src="http://maps.google.com/maps/api/js?sensor=true"></script> 
 
 	<link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="iphone.css" type="text/css" />		
 	
 	<script type="text/javascript" charset="utf-8" src="phonegap.0.9.4.min.js"></script>
-	<script type="text/javascript" charset="utf-8" src="script/mustache.js"></script>
-	<script src="http://maps.google.com/maps/api/js?sensor=true"> </script> 
-  
   <script type="text/javascript" charset="utf-8">
-    var pictureSource;   // picture source for iPhone
-    var useragent; // string determining what our user agent is	
-  	var media;
+
+    var pictureSource, userAgent, media, map, catMarker;
   	
-    var fleetUrl; //used for integrating with zonar systems
-    function busUrl(fleetId) {
-      // implement your transit bus route here
+  	var locWin = function(position) {
+      var coords = position.coords;
+      showMap(coords.latitude, coords.longitude);
+    };
+    
+    var locFail = function(e) {
+      // default to downtown Boston
+      showMap(42.35017139318913, -71.04257583618164);
+    };
+	
+  	function preventBehavior(e) { 
+      e.preventDefault(); 
     }
-       
-  	function onBodyLoad()
-  	{
+  	document.addEventListener("touchmove", preventBehavior, false);
+	
+	
+  	function onBodyLoad() {
   		document.addEventListener("deviceready",onDeviceReady,false);
   	}
 	
-  	/* When this function is called, PhoneGap has been initialized and is ready to roll */
-  	function onDeviceReady()
-  	{
-  		useragent = navigator.userAgent;
-  		if (useragent.indexOf('iPhone') != -1 || useragent.indexOf('Android') != -1 ) 
+  	function onDeviceReady() {
+  		userAgent = navigator.userAgent;
+  		if (userAgent.indexOf('iPhone') != -1 || userAgent.indexOf('Android') != -1 ) 
   		{
-  			pictureSource=navigator.camera.PictureSourceType;
+  			pictureSource = navigator.camera.PictureSourceType;
   		}
+  		navigator.geolocation.getCurrentPosition(locWin, locFail);
   	}
 	
-	  function getFleet() {
-	    $.mobile.pageLoading();
-	    $.ajax({
-       url: fleetUrl,
-       dataType: 'jsonp',
-       success: function(data) {
-         $.mobile.pageLoading(true);
-         var tmpl = $('#listTemplate').text();
-         data = data['assetlist'];
-         $('#fleetList').html(Mustache.to_html(tmpl, data)).listview('refresh');
-       }
-     });
-	  }
-	  
-	  function getBus(fleetId) {	    
-	    $.ajax({
-        url: busUrl(fleetId.replace(' ', '%20')),
-        dataType: 'jsonp',
-        success: function(data) {
-          var data = data['currentlocations']['asset'];
-          showMap(data['lat'], data['long']);
-        }
+    function uploadPhoto(imageData) {
+      $.ajax({
+        url: "http://civicapi.couchone.com/bos_cats",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({
+          "_attachments": {
+            "awesome.jpeg": {
+              "content_type":"image/jpeg",
+              "data": imageData
+            }
+          },
+          "geometry": {
+            "type": "Point",
+            "coordinates": [map.getCenter().lng(), map.getCenter().lat()]
+          }
+        })
       });
-	  }
-	  
-	  function showMap(latitude, longitude) {
+  	}
+  	
+  	function camWin(imageData) {
+  	  uploadPhoto(imageData);
+  	}
+  	
+  	function camFail(e) {
+  	  debug.log(e);
+  	}
+
+    function capturePhoto() {
+  		navigator.camera.getPicture(camWin, camFail, { quality: 50 }); 
+    }
+	
+    // iPhone ONLY
+    function getPicture(source){
+  		navigator.camera.getPicture(camWin, camFail, {quality: 100, sourceType: source, allowEdit: false});
+    }
+    
+    function getPictureEdit(source){
+  		navigator.camera.getPicture(camWin, camFail, {quality: 100, sourceType: source, allowEdit: true});
+    }
+    
+    function capturePhotoEdit() {
+  		navigator.camera.getPicture(camWin, camFail, {quality: 100, allowEdit: true }); 
+    }
+    
+    function bbox(map) {
+      var bounds = map.getBounds();
+      var sw = bounds.getSouthWest();
+      var ne = bounds.getNorthEast();
+      return sw.lng() + "," + sw.lat() + "," + ne.lng() + "," + ne.lat();
+    }
+    
+    function showMap(latitude, longitude) {
       var geocoder = new google.maps.Geocoder();
       var latlng = new google.maps.LatLng(latitude, longitude);
       var address;				
       var myOptions = {
       	center: latlng,
-      	zoom: 13,
-      	mapTypeId: google.maps.MapTypeId.ROADMAP
+      	zoom: 18,
+      	mapTypeId: google.maps.MapTypeId.ROADMAP,
+      	streetViewControl: false,
+      	mapTypeControl: false
       };
       var infowindow = new google.maps.InfoWindow();
     	var directionDisplay;
@@ -107,12 +147,11 @@
       var directionsDisplay = new google.maps.DirectionsRenderer();
       var markerArray = [];
       var stepDisplay = new google.maps.InfoWindow();
-      var marker1 = new google.maps.Marker();
 
-    	var map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+    	map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
     	directionsDisplay.setMap(map);
 
-      var image = new google.maps.MarkerImage('images/point.png',
+      var image = new google.maps.MarkerImage('images/catpin.png',
         new google.maps.Size(64, 31),
         new google.maps.Point(0,0),
         new google.maps.Point(16, 31)
@@ -124,55 +163,48 @@
         new google.maps.Point(10,32)
       );
 
-    	var marker = new google.maps.Marker({
+    	catMarker = new google.maps.Marker({
         position: new google.maps.LatLng(latitude,longitude), 
         clickable: true,
         icon: image,
         shadow: shadow,
         map: map 
       });  
-
+      
+      google.maps.event.addListener(map, 'dragend', function() { 
+        catMarker.setPosition(map.getCenter()); 
+      });
     };
+    
+    showMap(42.35017139318913, -71.04257583618164);
 
   </script>
   </head>
   <body onload="onBodyLoad()">
-  	<div data-role="page" data-theme="c" id="photo">		
-	  	<div data-role="header">
-  			<h1>FIND A BUS</h1>
+    <div data-role="page" data-theme="c" id="map">		
+  		<div data-role="header">
+  			<h1>CatMapper</h1>
   		</div>
-  		<div id="icon-container">  
-  		  <h1><i>BUSFINDER 5000</i></h1>
-  		</div>
-  		<div data-role="content" id="buttons">		
-  			<a href="#fleets" data-role="button" onclick="getFleet();">Find by Bus #</a> 
-  		</div>
-  	</div>
-
-    <div data-role="page" data-theme="c" id="fleets">		
-  	  <div data-role="header">
-  	    <h1>Bus List</h1>
-  		</div>
-  		<div data-role="content">
-  		  <ul id="fleetList" data-role="listview" data-dividertheme="e">
-    		</ul>
+  		<div data-role="content">	
+  			<div id="map_canvas"></div>
+  			<div class="top"></div>
+  			<div class="right"></div>
+  			<div class="left"></div>
+  			<div class="bottom"></div>
+  			<a href="#photo" data-role="button">Record Cat Here</a> 
   		</div>
   	</div>
   	
-  	<div data-role="page" data-theme="c" id="map">		
-  	  <div data-role="header">
-  	    <h1>Bus Location</h1>
+  	<div data-role="page" data-theme="c" id="photo">		
+  		<div data-role="header">
+  			<h1>Upload a Photo</h1>
   		</div>
-  		<div data-role="content">
-  		  <div id="map_canvas"></div>
+  		<div id="icon-container">  
+  		</div>
+  		<div data-role="content" id="buttons">
+  			<a href="#" data-role="button" onclick="getPictureEdit(pictureSource.SAVEDPHOTOALBUM);">Choose From Library</a> 
+  			<a href="#" data-role="button" onclick="capturePhotoEdit();">Take Photo</a> 
   		</div>
   	</div>
-	
-  	<script type="text/mustache" id="listTemplate">
-    	{{#assets}} 
-      <li><a href="#map" data-transition="slide" onclick="getBus('{{fleet}}');">{{fleet}}</a></li>
-      {{/assets}}
-  	</script>
-
   </body>
 </html>

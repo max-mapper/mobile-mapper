@@ -3,7 +3,10 @@
  * MIT License (2008). See http://opensource.org/licenses/alphabetical for full text.
  * 
  * Copyright (c) 2005-2010, Nitobi Software Inc.
- * Copyright (c) 2010, IBM Corporation
+ * Copyright (c) 2010-2011, IBM Corporation
+ * Copyright (c) 2011, Codevise Solutions Ltd.
+ * Copyright (c) 2011, Proyectos Equis Ka, S.L.
+ * 
  */
 
 /* Helper code to resolve anonymous callback functions,
@@ -60,12 +63,19 @@ function anomToNameFunk(fun)
 
 function GetFunctionName(fn)
 {
-  if (fn) 
-  {
+  if (typeof fn === "function") {
+    var name= fn.name;	
+	if (!name) {
       var m = fn.toString().match(/^\s*function\s+([^\s\(]+)/);
-      return m ? m[1] : anomToNameFunk(fn);
-  } else {
-    return null;
+      name= m && m[1];	
+	}
+	if (name && (window[name] === fn)) {
+		return name;
+	} else {
+		return anomToNameFunk(fn);
+	} 
+  }else {
+  	return null;
   }
 }
 if (typeof(DeviceInfo) != 'object')
@@ -1797,12 +1807,16 @@ function Media(src, successCallback, errorCallback, downloadCompleteCallback) {
 		src = "documents://" + String((new Date()).getTime()).replace(/\D/gi,''); // random
 	}
 	this.src = src;
-	this.successCallback = successCallback;
-	this.errorCallback = errorCallback;	
-	this.downloadCompleteCallback = downloadCompleteCallback;
+	var successCB = (successCallback == undefined || successCallback == null) ? null : GetFunctionName(successCallback);
+	var errorCB = (errorCallback == undefined || errorCallback == null) ? null : GetFunctionName(errorCallback);
+	var downloadCB = (downloadCompleteCallback == undefined || downloadCompleteCallback == null) ? null : GetFunctionName(downloadCompleteCallback);
+	
+	this.successCallback = successCallback || null;
+	this.errorCallback = errorCallback || null;	
+	this.downloadCompleteCallback = downloadCompleteCallback || null;
     
 	if (this.src != null) {
-		PhoneGap.exec("Sound.prepare", this.src, this.successCallback, this.errorCallback, this.downloadCompleteCallback);
+		PhoneGap.exec("Sound.prepare", this.src, successCB, errorCB, downloadCB);
 	}
 }
  
