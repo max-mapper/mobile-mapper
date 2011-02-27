@@ -2,13 +2,13 @@
 <html>
   <head>
 	<!-- Change this if you want to allow scaling -->
-    <meta name="viewport" content="width=default-width; user-scalable=no" />
+  <meta name="viewport" content="width=default-width; user-scalable=no" />
 
-    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8">
 
-    <title>ImgReadr</title>
-	
-	<link rel="stylesheet"  href="http://code.jquery.com/mobile/1.0a1/jquery.mobile-1.0a1.min.css" />
+  <title>CatMapper</title>
+
+	<link rel="stylesheet"  href="style/jquery.mobile-1.0a3.min.css" />
 	
 	<style type="text/css">
 		#icon-container{
@@ -29,17 +29,18 @@
 			text-align: center;
 		}
 		#map_canvas { height: 330px; width: 100%; margin: 0px; padding: 0px }
-		.left, .right, .top, .bottom {position: absolute; background-color: #000;}
+		.crosshair {position: absolute; top: 120px; left: 0px;}
+		.left, .right, .top, .bottom {position: relative; background-color: #000; float: left;}
 		.left, .right {height: 10px; width: 60px;}
 		.top, .bottom {height: 60px; width: 10px;}
-		.top    {top: 115px; left: 155px;}
-		.left   {top: 215px; left: 60px;}
-		.right  {top: 215px; left: 200px;}
-		.bottom {top: 255px; left: 155px;}
+		.top    {top: 0px; left: 155px;}
+		.left   {top: 85px; left: 0px;}
+		.right  {top: 85px; left: 180px;}
+		.bottom {top: 120px; left: 25px;}
 	</style>
 	
 	<script src="js/jquery-1.4.3.min.js"></script>
-	<script src="js/jquery.mobile-1.0a1.min.js"></script>    
+	<script src="js/jquery.mobile-1.0a3.min.js"></script>    
   <script src="http://maps.google.com/maps/api/js?sensor=true"></script> 
 
 	<link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="iphone.css" type="text/css" />		
@@ -71,8 +72,7 @@
 	
   	function onDeviceReady() {
   		userAgent = navigator.userAgent;
-  		if (userAgent.indexOf('iPhone') != -1 || userAgent.indexOf('Android') != -1 ) 
-  		{
+  		if (userAgent.indexOf('iPhone') != -1 || userAgent.indexOf('Android') != -1 ) {
   			pictureSource = navigator.camera.PictureSourceType;
   		}
   		navigator.geolocation.getCurrentPosition(locWin, locFail);
@@ -176,8 +176,12 @@
       });
     };
     
-    showMap(42.35017139318913, -71.04257583618164);
-
+    $(function() {
+      userAgent = navigator.userAgent;
+  		if (userAgent.indexOf('iPhone') === -1 || userAgent.indexOf('Android') === -1 ) {
+  			showMap(42.35017139318913, -71.04257583618164);
+  		}
+    });
   </script>
   </head>
   <body onload="onBodyLoad()">
@@ -187,10 +191,12 @@
   		</div>
   		<div data-role="content">	
   			<div id="map_canvas"></div>
-  			<div class="top"></div>
-  			<div class="right"></div>
-  			<div class="left"></div>
-  			<div class="bottom"></div>
+  			<div class="crosshair">
+    			<div class="top"></div>
+    			<div class="right"></div>
+    			<div class="left"></div>
+    			<div class="bottom"></div>
+  			</div>
   			<a href="#photo" data-role="button">Record Cat Here</a> 
   		</div>
   	</div>
