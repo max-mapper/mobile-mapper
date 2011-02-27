@@ -39,15 +39,11 @@
 		.bottom {top: 120px; left: 25px;}
 	</style>
 	
-	<script src="js/jquery-1.4.3.min.js"></script>
-	<script src="js/jquery.mobile-1.0a3.min.js"></script>    
-  <script src="http://maps.google.com/maps/api/js?sensor=true"></script> 
-
-	<link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="iphone.css" type="text/css" />		
-	
+	<script src="script/jquery-1.4.3.min.js"></script>
+	<script src="script/jquery.mobile-1.0a3.min.js"></script>    
+  <script src="http://maps.google.com/maps/api/js?sensor=true"></script>
 	<script type="text/javascript" charset="utf-8" src="phonegap.0.9.4.min.js"></script>
   <script type="text/javascript" charset="utf-8">
-
     var pictureSource, userAgent, media, map, catMarker;
   	
   	var locWin = function(position) {
@@ -71,11 +67,18 @@
   	}
 	
   	function onDeviceReady() {
-  		userAgent = navigator.userAgent;
-  		if (userAgent.indexOf('iPhone') != -1 || userAgent.indexOf('Android') != -1 ) {
-  			pictureSource = navigator.camera.PictureSourceType;
+  		if (isMobile()) {
+		  	pictureSource = navigator.camera.PictureSourceType;
   		}
   		navigator.geolocation.getCurrentPosition(locWin, locFail);
+  	}
+  	
+  	function isMobile() {
+  	  userAgent = navigator.userAgent;
+  		if (userAgent.indexOf('iPhone') >= 0 || userAgent.indexOf('Android') >= 0 ) {
+  			return true;
+  		}
+		  return false;
   	}
   	
   	function uploadWin() {
@@ -137,6 +140,7 @@
     }
     
     function showMap(latitude, longitude) {
+      $('.crosshair').css('left', (document.body.clientWidth - 320) / 2);
       var geocoder = new google.maps.Geocoder();
       var latlng = new google.maps.LatLng(latitude, longitude);
       var address;				
@@ -183,8 +187,7 @@
     };
     
     $(function() {
-      userAgent = navigator.userAgent;
-  		if (userAgent.indexOf('iPhone') === -1 || userAgent.indexOf('Android') === -1 ) {
+      if (!isMobile()) {
   			showMap(42.35017139318913, -71.04257583618164);
   		}
     });
