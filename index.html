@@ -52,6 +52,7 @@
     };
     
     var locFail = function(e) {
+      console.log('fail')
       // default to downtown Boston
       showMap(42.35017139318913, -71.04257583618164);
     };
@@ -67,12 +68,29 @@
   	}
 	
   	function onDeviceReady() {
-  		if (isMobile()) {
-		  	pictureSource = navigator.camera.PictureSourceType;
-  		}
-  		navigator.geolocation.getCurrentPosition(locWin, locFail);
+      if (isMobile()) {
+             pictureSource = navigator.camera.PictureSourceType;
+      }
+  		if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(locWin, onError);
+        // also monitor position as it changes
+        navigator.geolocation.watchPosition(locWin);
+      } else {
+        onError();
+      }
+
+      // navigator.geolocation.getCurrentPosition(locWin, locFail);
   	}
   	
+    function onError(e) {
+      if (navigator.geolocation) {
+        err = "Error: The Geolocation service failed.";
+      } else {
+        err = "Error: Your browser doesnt support geolocation.";
+      }
+      console.log(err);
+    }
+    
   	function isMobile() {
   	  userAgent = navigator.userAgent;
   		if (userAgent.indexOf('iPhone') >= 0 || userAgent.indexOf('Android') >= 0 ) {
@@ -187,13 +205,12 @@
     };
     
     $(function() {
-      if (!isMobile()) {
-  			showMap(42.35017139318913, -71.04257583618164);
-  		}
+      onDeviceReady();
+      // showMap(42.35017139318913, -71.04257583618164);
     });
   </script>
   </head>
-  <body onload="onBodyLoad()">
+  <body onload="">
     <div data-role="page" data-theme="c" id="map">		
   		<div data-role="header">
   			<h1>CatMapper</h1>
