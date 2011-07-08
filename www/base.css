@@ -1,0 +1,40 @@
+ /*!
+  * Open Elm Project 
+  * Copyright 2011 Red Robot Studios
+ */
+.ui-bar-d{border-bottom:1px solid #5e7c1e;border-top:1px solid #9fcf46;background:#97bc5d;color:#fff;text-shadow:0 1px 0 #354242;background-image:-moz-linear-gradient(top,#97bc5d,#7b9c3f);background-image:-webkit-gradient(linear,left top,left bottom,color-stop(0,#97bc5d),color-stop(1,#7b9c3f));-ms-filter:"progid:DXImageTransform.Microsoft.gradient(startColorStr='#97BC5D', EndColorStr='#7B9C3F')"}
+.ui-body-d{border:1px solid #333;color:#354242;text-shadow:0 1px 0 #eee;background:#fff url('images/bg.png') scroll repeat-x 0 0;}
+#index_logo {width:275px;height:140px;background:transparent url('images/logo.png') scroll no-repeat 0 0;margin:0 auto;}
+#index_intro_h {text-align:center;font-size:14px;color:#7A8888;text-shadow:#222;margin-bottom:10px}
+#small_map_canvas, img.photo {display:block;width:95%;height:260px;margin:0 auto;}
+#id_camera_image.placeholder {display:none}
+#nearby_map, #nearby_map .ui-content, #nearby_map_canvas {width:100%;height:100%;padding:0;}
+#set_username_list {display:none}
+.hl_g {color:#9bab41}
+.hl_o {color:#C42B1E;}
+.ident_list {padding-left:30px}
+.ident_list li {margin-bottom:10px;}
+.gen {font-size:14px;}
+.centered_t {text-align:center;width:95%;}
+h2.mh {color:#9bab41}
+div.photo_w {width:280px;position:relative;left:-25px;margin:10px 0}
+div.photo {width:280px;height:200px;background:transparent url('images/examples/leaf_fruit.jpg') scroll no-repeat 0 0;}
+em.photo_cap {display:block;font-size:14px;text-align:center;color:#666}
+#trunk_photo {background-image:url('images/examples/trunk.jpg')}
+#branches_photo {background-image:url('images/examples/branches.jpg')}
+#yellow_l_photo {background-image:url('images/examples/yellow_leaves.jpg')}
+#wilted_l_photo {background-image:url('images/examples/wilted_leaves.jpg')}
+#sapwood_photo {background-image:url('images/examples/sapwood.jpg')}
+#retention_photo {background-image:url('images/examples/retention.jpg')}
+@media only screen and (-webkit-min-device-pixel-ratio: 2) {
+    div.photo {background-size:300px 214px;}
+    #index_logo {background-image:url('images/logo@2x.png');background-size:268px 46px;}
+    #leaf_fruit_photo {background-image:url('images/examples/leaf_fruit_l.jpg');}
+    #trunk_photo{background-image:url('images/examples/trunk_l.jpg');}
+    #branches_photo {background-image:url('images/examples/branches_l.jpg')}
+    #yellow_l_photo {background-image:url('images/examples/yellow_leaves_l.jpg')}
+    #wilted_l_photo {background-image:url('images/examples/wilted_leaves_l.jpg')}
+    #sapwood_photo {background-image:url('images/examples/sapwood_l.jpg')}
+    #retention_photo {background-image:url('images/examples/retention_l.jpg')}
+    .ui-body-d {background:#fff url('images/bg@2x.png') scroll repeat-x 0 0;}
+}
