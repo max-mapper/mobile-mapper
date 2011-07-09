@@ -14,8 +14,8 @@
 	<array/>
 	<key>Plugins</key>
 	<dict>
-		<key>CouchDBAttachmentUploader</key>
-		<string>CouchDBAttachmentUploader</string>
+		<key>MapKitView</key>
+		<string>MapKitView</string>
 		<key>Accelerometer</key>
 		<string>Accelerometer</string>
 		<key>Camera</key>
@@ -26,6 +26,8 @@
 		<string>Connection</string>
 		<key>Contacts</key>
 		<string>Contacts</string>
+		<key>CouchDBAttachmentUploader</key>
+		<string>CouchDBAttachmentUploader</string>
 		<key>DebugConsole</key>
 		<string>DebugConsole</string>
 		<key>File</key>
