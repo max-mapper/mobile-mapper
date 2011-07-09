@@ -35,7 +35,9 @@
 
 - (void)destroyMap:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
 
-- (void)setMapPins:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
+- (void)clearMapPins:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
+
+- (void)addMapPins:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
 
 - (void)setMapData:withDict:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
 

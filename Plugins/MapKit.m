@@ -52,9 +52,12 @@
 (BOOL)animated { 
 float currentLat=mapView.region.center.latitude; 
 float currentLon=mapView.region.center.longitude; 
+float latitudeDelta=mapView.region.span.latitudeDelta; 
+float longitudeDelta=mapView.region.span.longitudeDelta; 
 NSString* jsString = nil;
-	jsString = [[NSString alloc] initWithFormat:@"geo.onMapMove(\'%f','%f\');", currentLat,currentLon];
+	jsString = [[NSString alloc] initWithFormat:@"geo.onMapMove(\'%f','%f','%f','%f\');", currentLat,currentLon,latitudeDelta,longitudeDelta];
 	[webView stringByEvaluatingJavaScriptFromString:jsString];
+	[jsString autorelease];
 }
 
 - (void)destroyMap:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options
@@ -81,10 +84,13 @@ NSString* jsString = nil;
 	[ buttonCallback release ];
 }
 
-- (void)setMapPins:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
+- (void)clearMapPins:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
 {
   [mapView removeAnnotations:mapView.annotations];
-  
+}
+
+- (void)addMapPins:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
+{
   SBJSON *parser=[[SBJSON alloc] init];
 	NSArray *pins = [parser objectWithString:[arguments objectAtIndex:0]];
 	[parser autorelease];
@@ -108,7 +114,6 @@ NSString* jsString = nil;
 		[annotation release];
 	}
 }
-
 
 /**
  * Set annotations and mapview settings
@@ -194,21 +199,21 @@ NSString* jsString = nil;
 	childView.hidden = YES;
 }
 
-- (MKAnnotationView *) mapView:(MKMapView *)theMapView viewForAnnotation:(id <MKAnnotation>) annotation{
-	
-	if ([annotation class] != PGAnnotation.class) {
-        return nil;
-    }
-	
+- (MKAnnotationView *) mapView:(MKMapView *)theMapView viewForAnnotation:(id <MKAnnotation>) annotation {
+  
+  if ([annotation class] != PGAnnotation.class) {
+    return nil;
+  }
+
 	PGAnnotation *phAnnotation=(PGAnnotation *) annotation;
 	NSString *identifier=[NSString stringWithFormat:@"INDEX[%i]", phAnnotation.index];
 
 	MKPinAnnotationView *annView = (MKPinAnnotationView *)[theMapView dequeueReusableAnnotationViewWithIdentifier:identifier];
-	
+
 	if (annView!=nil) return annView;
 
 	annView=[[MKPinAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:identifier];
-	
+
 	annView.animatesDrop=YES;
 	annView.canShowCallout = YES;
 	if ([phAnnotation.pinColor isEqualToString:@"green"])
@@ -230,13 +235,13 @@ NSString* jsString = nil;
 	{
 		[asyncImage loadDefaultImage];
 	}
-	
+
 	annView.leftCalloutAccessoryView = asyncImage;
 
-	
+
 	if (self.buttonCallback && phAnnotation.index!=-1)
 	{
-		
+
 		UIButton *myDetailButton = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
 		myDetailButton.frame = CGRectMake(0, 0, 23, 23);
 		myDetailButton.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
@@ -244,9 +249,9 @@ NSString* jsString = nil;
 		myDetailButton.tag=phAnnotation.index;
 		annView.rightCalloutAccessoryView = myDetailButton;
 		[ myDetailButton addTarget:self action:@selector(checkButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
-		
+
 	}
-	
+
 	if(phAnnotation.selected)
 	{
 		[self performSelector:@selector(openAnnotation:) withObject:phAnnotation afterDelay:1.0];

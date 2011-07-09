@@ -91,13 +91,19 @@ MapKitPlug.prototype.setMapData = function(options)
 	PhoneGap.exec("MapKitView.setMapData",this.options);
 };
 
-MapKitPlug.prototype.setMapPins = function(pins) {
+MapKitPlug.prototype.addMapPins = function(pins) {
 
   var pinStr = "[]";
 
   if(pins) pinStr = JSON.stringify(pins);
 
-  PhoneGap.exec("MapKitView.setMapPins", pinStr);
+  PhoneGap.exec("MapKitView.addMapPins", pinStr);
+
+}
+
+MapKitPlug.prototype.clearMapPins = function() {
+
+  PhoneGap.exec("MapKitView.clearMapPins");
 
 }
 
